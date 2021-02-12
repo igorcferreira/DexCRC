@@ -37,13 +37,5 @@ class CRCValidator {
             val crcString = String.format("%02x", zipEntry.crc)
             return CRCResponse(entry.crc == crcString, crcString, entry)
         }
-
-        private fun expandTable(table: String): List<CRCEntry> {
-            return table.split("\n")
-                .mapNotNull {
-                    val elements = it.split(";")
-                    if (elements.size == 2) CRCEntry(elements.first(), elements.last()) else null
-                }
-        }
     }
 }
