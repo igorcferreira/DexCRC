@@ -66,25 +66,24 @@ android {
         viewBinding true
     }
     afterEvaluate {
+        applicationVariants.all { variant ->
+            def minify = variant.buildType.minifyEnabled
+            def name = variant.name
+            def taskName = minify ? "minify${name.capitalize()}WithR8" : "mergeExtDex${name.capitalize()}"
 
-        // Configuration for Release
-        task prepareReleaseSingleCRCAsset(dependsOn: minifyReleaseWithR8, type: DexCRCTask) {
-            dexPath "$buildDir/intermediates/dex/release/minifyReleaseWithR8/classes.dex"
-            outputPath "$buildDir/crc"
-            abortIfCRCNotUpdated true
+            def crcTaskName = "${name}CRC"
+            def buildTasks = getTasksByName(taskName, false)
+            def dexCRC = project.tasks.create(crcTaskName, DexCRCTask.class) {
+                dexPath = "$buildDir/intermediates/dex/$name/$taskName"
+                outputPath = "$buildDir/crc"
+                abortIfCRCNotUpdated = true
+                dependsOn(buildTasks)
+            }
+
+            buildTasks.forEach {
+                it.doLast { dexCRC.extractCRC() }
+            }
         }
-        assembleRelease.dependsOn prepareReleaseSingleCRCAsset
-
-        //--
-
-        //Configuration for Debug
-        task prepareDebugSingleCRCAsset(dependsOn: mergeExtDexDebug, type: DexCRCTask) {
-            dexPath "$buildDir/intermediates/dex/debug/mergeExtDexDebug/classes.dex"
-            outputPath "$buildDir/crc"
-            abortIfCRCNotUpdated true
-        }
-
-        assembleDebug.dependsOn prepareDebugSingleCRCAsset
     }
 }
 
