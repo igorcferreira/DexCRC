@@ -27,6 +27,8 @@ plugins {
     id 'kotlin-android'
 }
 
+def CRC_PATH = "$buildDir/crc"
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -40,8 +42,8 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        def singleCRCFile = new File("$buildDir/crc/crc.txt")
-        resValue "string", "single_crc", singleCRCFile.exists() ? singleCRCFile.readLines().join("\n") : ""
+        def crcTableFile = new File("$CRC_PATH/crc.txt")
+        resValue "string", "single_crc", crcTableFile.exists() ? crcTableFile.readLines().join("\n") : ""
     }
 
     buildTypes {
@@ -71,11 +73,10 @@ android {
             def name = variant.name
             def taskName = minify ? "minify${name.capitalize()}WithR8" : "mergeExtDex${name.capitalize()}"
 
-            def crcTaskName = "${name}CRC"
             def buildTasks = getTasksByName(taskName, false)
-            def dexCRC = project.tasks.create(crcTaskName, DexCRCTask.class) {
-                dexPath = "$buildDir/intermediates/dex/$name/$taskName"
-                outputPath = "$buildDir/crc"
+            def dexCRC = project.tasks.create("${name}CRC", DexCRCTask.class) {
+                dexPath = "$buildDir/intermediates/dex/$name/$taskName/classes.dex"
+                outputPath = CRC_PATH
                 abortIfCRCNotUpdated = true
                 dependsOn(buildTasks)
             }
