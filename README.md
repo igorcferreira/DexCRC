@@ -28,6 +28,15 @@ android {
             abortIfCRCNotUpdated true
         }
         assembleRelease.dependsOn releaseCRC
+        
+        //Configuration for Debug
+        task debugCRC(dependsOn: mergeExtDexDebug, type: DexCRCTask) {
+            dexPath "$buildDir/intermediates/dex/debug/mergeExtDexDebug/classes.dex"
+            outputPath "$buildDir/crc"
+            abortIfCRCNotUpdated true
+        }
+        assembleDebug.dependsOn debugCRC
+
     }
 }
 ```
@@ -66,8 +75,8 @@ $ ./gradlew assembleRelease
 ```groovy
 android {
     defaultConfig {
-        def singleCRCFile = new File("$buildDir/crc/crc.txt")
-        resValue "string", "single_crc", singleCRCFile.exists() ? singleCRCFile.readLines().join("\n") : ""
+        def singleCRCFile = new File("$buildDir/crc/crc_classes.csv")
+        resValue "string", "crc_table", singleCRCFile.exists() ? singleCRCFile.readLines().join("\n") : ""
     }
     afterEvaluate {
         // Configuration for Release
@@ -77,6 +86,15 @@ android {
             abortIfCRCNotUpdated true
         }
         assembleRelease.dependsOn releaseCRC
+
+        // Configuration for Debug
+        task debugCRC(dependsOn: mergeExtDexDebug, type: DexCRCTask) {
+            dexPath "$buildDir/intermediates/dex/debug/mergeExtDexDebug"
+            outputPath "$buildDir/crc"
+            abortIfCRCNotUpdated true
+        }
+        assembleDebug.dependsOn debugCRC
+
     }
 }
 ```
