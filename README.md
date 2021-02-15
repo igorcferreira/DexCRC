@@ -22,12 +22,12 @@ android {
     }
     afterEvaluate {
         // Configuration for Release
-        task prepareReleaseSingleCRCAsset(dependsOn: minifyReleaseWithR8, type: DexCRCTask) {
+        task releaseCRC(dependsOn: minifyReleaseWithR8, type: DexCRCTask) {
             dexPath "$buildDir/intermediates/dex/release/minifyReleaseWithR8/classes.dex"
             outputPath "$buildDir/crc"
             abortIfCRCNotUpdated true
         }
-        assembleRelease.dependsOn prepareReleaseSingleCRCAsset
+        assembleRelease.dependsOn releaseCRC
     }
 }
 ```
@@ -55,7 +55,7 @@ class CRCValidator {
 #### Android APK creation
 
 ```shell script
-$ ./gradlew clean prepareReleaseSingleCRCAsset
+$ ./gradlew clean releaseCRC --disableAbort
 $ ./gradlew assembleRelease
 ```
 
@@ -71,12 +71,12 @@ android {
     }
     afterEvaluate {
         // Configuration for Release
-        task prepareReleaseCRCTableAsset(dependsOn: minifyReleaseWithR8, type: DexCRCTask) {
+        task releaseCRC(dependsOn: minifyReleaseWithR8, type: DexCRCTask) {
             dexPath "$buildDir/intermediates/dex/release/minifyReleaseWithR8"
             outputPath "$buildDir/crc"
             abortIfCRCNotUpdated true
         }
-        assembleRelease.dependsOn prepareReleaseCRCTableAsset
+        assembleRelease.dependsOn releaseCRC
     }
 }
 ```
@@ -117,6 +117,6 @@ class CRCValidator {
 #### Android APK creation
 
 ```shell script
-$ ./gradlew clean prepareReleaseSingleCRCAsset
+$ ./gradlew clean releaseCRC --disableAbort
 $ ./gradlew assembleRelease
 ```
